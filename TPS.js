@@ -1,4 +1,29 @@
 /*
+ * Matrix dot product
+ */
+dot = function( a, b )
+{
+    var n = a.length;
+    var m = b.length;
+    var p = b[ 0 ].length;
+    
+    var ret = createArray( n, p );
+    for( var i = 0; i < n; i++ )
+    {
+        for( var j = 0; j < p; j++ )
+        {
+            var sum = 0;
+            for( var k = 0; k < m; k++ )
+                sum += a[ i ][ k ] * b[ k ][ j ];
+            
+            ret[ i ][ j ] = sum;
+        }
+    }
+    
+    return ret;
+}
+
+/*
  * Transpose matrix
  */
 function transpose( m )
@@ -219,12 +244,18 @@ function TPS_generate( src, dst )
         for( var j = 0; j < 2; j++ )
             a[ i ][ j ] = Wa[ i + n ][ j ];
     
+    // Other calculations
+    
+    var WKW = dot( dot( transpose( W ), K ), W );
+    var be = 0.5 * ( WKW[ 0 ][ 0 ] + WKW[ 1 ][ 1 ]  );
+    
     // Return
     return {
         src: src,
         dst: dst,
         linear: a,
         weights: W,
+        be: be,
     };
 }
 
