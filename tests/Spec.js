@@ -1,3 +1,8 @@
+round = function( x, n )
+{
+    return Math.round( x * ( 10 ^ n ) ) / ( 10 ^ n );
+}
+
 describe( "TPS Core", function()
 {
     var src = [ [ 3.6929, 10.3819 ], [ 6.5827, 8.8386 ], [ 6.7756, 12.0866 ], [ 4.8189, 11.2047 ], [ 5.6969, 10.0748 ] ]
@@ -20,11 +25,6 @@ describe( "TPS Core", function()
         ]
     };
     
-    myround = function( x, n )
-    {
-        return Math.round( x * ( 10 ^ n ) ) / ( 10 ^ n );
-    }
-    
     it( "TPS_generate", function()
     {
         expect( TPS_generate( src, dst ) ).toEqual( g );
@@ -43,8 +43,8 @@ describe( "TPS Core", function()
             var px = p[ 0 ];
             var py = p[ 1 ];
             
-            expect( myround( px, 5 ) ).toEqual( myround( exp_px, 5 ) );
-            expect( myround( py, 5 ) ).toEqual( myround( exp_py, 5 ) );
+            expect( round( px, 5 ) ).toEqual( round( exp_px, 5 ) );
+            expect( round( py, 5 ) ).toEqual( round( exp_py, 5 ) );
         }
     } );
 } );
