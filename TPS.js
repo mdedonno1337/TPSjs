@@ -10,17 +10,17 @@ function solve( A )
     for( var i = 0; i < n; i++ )
     {
         // Search for maximum in this column
-        var maxEl = 0
-        var maxRow = null;
+        var max_value = 0
+        var max_row = null;
         
         for( var k = i; k < n; k++ )
         {
-            cmaxEl = Math.abs( A[ k ][ i ] );
+            current_max_value = Math.abs( A_aug[ k ][ i ] );
             
-            if( cmaxEl > maxEl )
+            if( current_max_value > max_value )
             {
-                maxEl = cmaxEl;
-                maxRow = k;
+                max_value = current_max_value;
+                max_row = k;
             }
         }
         
