@@ -1,64 +1,95 @@
 /*
+ * Transpose matrix
+ */
+function transpose( m )
+{
+    var ret = createArray( m[ 0 ].length, m.length );
+    
+    for( var i = 0; i < m[ 0 ].length; i++ )
+        for( var j = 0; j < m.length; j++ )
+            ret[ i ][ j ] = m[ j ][ i ];
+    
+    return ret;
+}
+
+/*
  * Solve a linear system of equations by Gaussian elimination.
  * Based on:
  *      https://martin-thoma.com/solving-linear-equations-with-gaussian-elimination/
  */
 function solve( A, b )
 {
-    var n = A.length;
-    var A_aug = createArray( n, n + 1 );
-    
-    for( var i = 0; i < n; i++ )
+    if( typeof( b[ 0 ] ) != "number" )
     {
-        for( var j = 0; j < n; j++ )
-            A_aug[ i ][ j ] = A[ i ][ j ];
-        A_aug[ i ][ n ] = b[ i ];
-    }
-    
-    for( var i = 0; i < n; i++ )
-    {
-        // Search for maximum in this column
-        var max_value = 0
-        var max_row = null;
+        var ret = Array();
         
-        for( var k = i; k < n; k++ )
+        for( var i = 0; i < b[ 0 ].length; i++ )
         {
-            current_max_value = Math.abs( A_aug[ k ][ i ] );
+            var tmp = Array();
+            for( var j = 0; j < b.length; j++ )
+                tmp.push( b[ j ][ i ] );
             
-            if( current_max_value > max_value )
-            {
-                max_value = current_max_value;
-                max_row = k;
-            }
+            ret.push( solve( A, tmp ) );
         }
         
-        // Swap maximum row with current row (column by column)
-        for( var k = i; k < n + 1; k++ )
-            [ A_aug[ i ][ k ], A_aug[ max_row ][ k ] ] = [ A_aug[ max_row ][ k ], A_aug[ i ][ k ] ];
-        
-        // Make all rows below this one 0 in current column
-        for( k = i + 1; k < n; k++ )
-        {
-            var c = -A_aug[ k ][ i ] / A_aug[ i ][ i ];
-            for( var j = i; j < n + 1; j++ )
-            {
-                if( i == j )
-                    A_aug[ k ][ j ] = 0;
-                else
-                    A_aug[ k ][ j ] += c * A_aug[ i ][ j ];
-            }
-        }
-    }
+        return transpose( ret );
     
-    // Solve equation Ax=b 
-    var x = new Array( n );
-    for( var i = n - 1; i > -1; i-- )
-    {
-        x[ i ] = A_aug[ i ][ n ] / A_aug[ i ][ i ];
-        for( var k = i - 1; k > -1; k-- )
-            A_aug[ k ][ n ] -= A_aug[ k ][ i ] * x[ i ];
+    } else {
+        var n = A.length;
+        var A_aug = createArray( n, n + 1 );
+        
+        for( var i = 0; i < n; i++ )
+        {
+            for( var j = 0; j < n; j++ )
+                A_aug[ i ][ j ] = A[ i ][ j ];
+            A_aug[ i ][ n ] = b[ i ];
+        }
+        
+        for( var i = 0; i < n; i++ )
+        {
+            // Search for maximum in this column
+            var max_value = 0
+            var max_row = null;
+            
+            for( var k = i; k < n; k++ )
+            {
+                current_max_value = Math.abs( A_aug[ k ][ i ] );
+                
+                if( current_max_value > max_value )
+                {
+                    max_value = current_max_value;
+                    max_row = k;
+                }
+            }
+            
+            // Swap maximum row with current row (column by column)
+            for( var k = i; k < n + 1; k++ )
+                [ A_aug[ i ][ k ], A_aug[ max_row ][ k ] ] = [ A_aug[ max_row ][ k ], A_aug[ i ][ k ] ];
+            
+            // Make all rows below this one 0 in current column
+            for( k = i + 1; k < n; k++ )
+            {
+                var c = -A_aug[ k ][ i ] / A_aug[ i ][ i ];
+                for( var j = i; j < n + 1; j++ )
+                {
+                    if( i == j )
+                        A_aug[ k ][ j ] = 0;
+                    else
+                        A_aug[ k ][ j ] += c * A_aug[ i ][ j ];
+                }
+            }
+        }
+        
+        // Solve equation Ax=b
+        var x = new Array( n );
+        for( var i = n - 1; i > -1; i-- )
+        {
+            x[ i ] = A_aug[ i ][ n ] / A_aug[ i ][ i ];
+            for( var k = i - 1; k > -1; k-- )
+                A_aug[ k ][ n ] -= A_aug[ k ][ i ] * x[ i ];
+        }
+        return x;
     }
-    return x;
 }
 
 /*
@@ -161,38 +192,28 @@ function TPS_generate( src, dst )
             L[ n + i ][ n + j ] = 0;
     
     // V Matrix
-    var Vx = createArray( n + 3 );
-    var Vy = createArray( n + 3 );
+    var V = createArray( n + 3, 2 );
     
     for( var i = 0; i < n; i++ )
-    {
-        Vx[ i ] = dst[ i ][ 0 ];
-        Vy[ i ] = dst[ i ][ 1 ];
-    }
+        for( var j = 0; j < 2; j++ )
+            V[ i ][ j ] = dst[ i ][ j ];
     
     for( var i = 0; i < 3; i++ )
-    {
-        Vx[ i + n ] = 0;
-        Vy[ i + n ] = 0;
-    }
+        for( var j = 0; j < 2; j++ )
+            V[ i + n ][ j ] = 0;
     
     // Solve
-    Wax = solve( L, Vx );
-    Way = solve( L, Vy );
+    Wa = solve( L, V );
     
     var W = createArray( n, 2 );
     for( var i = 0; i < n; i++ )
-    {
-        W[ i ][ 0 ] = Wax[ i ];
-        W[ i ][ 1 ] = Way[ i ];
-    }
+        for( var j = 0; j < 2; j++ )
+            W[ i ][ j ] = Wa[ i ][ j ];
     
     var a = createArray( 3, 2 );
     for( var i = 0; i < 3; i++ )
-    {
-        a[ i ][ 0 ] = Wax[ i + n ];
-        a[ i ][ 1 ] = Way[ i + n ];
-    }
+        for( var j = 0; j < 2; j++ )
+            a[ i ][ j ] = Wa[ i + n ][ j ];
     
     // Return
     return {
