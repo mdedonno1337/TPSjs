@@ -53,7 +53,7 @@ function solve( A, b )
             
             for( var k = i; k < n; k++ )
             {
-                current_max_value = Math.abs( A_aug[ k ][ i ] );
+                var current_max_value = Math.abs( A_aug[ k ][ i ] );
                 
                 if( current_max_value > max_value )
                 {
