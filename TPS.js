@@ -252,12 +252,15 @@ function TPS_generate( src, dst )
     var surfaceratio = ( a[ 1 ][ 0 ] * a[ 2 ][ 1 ] ) - ( a[ 2 ][ 0 ] * a[ 1 ][ 1 ] );
     var scale = Math.sqrt( Math.abs( surfaceratio ) );
     
+    var mirror = surfaceratio < 0 ? true : false;
+    
     // Return
     return {
         src: src,
         dst: dst,
         linear: a,
         scale: scale,
+        mirror: mirror,
         weights: W,
         be: be,
     };
