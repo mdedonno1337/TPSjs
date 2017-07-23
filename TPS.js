@@ -3,9 +3,17 @@
  * Based on:
  *      https://martin-thoma.com/solving-linear-equations-with-gaussian-elimination/
  */
-function solve( A )
+function solve( A, b )
 {
     var n = A.length;
+    var A_aug = createArray( n, n + 1 );
+    
+    for( var i = 0; i < n; i++ )
+    {
+        for( var j = 0; j < n; j++ )
+            A_aug[ i ][ j ] = A[ i ][ j ];
+        A_aug[ i ][ n ] = b[ i ];
+    }
     
     for( var i = 0; i < n; i++ )
     {
@@ -26,18 +34,18 @@ function solve( A )
         
         // Swap maximum row with current row (column by column)
         for( var k = i; k < n + 1; k++ )
-            [ A[ i ][ k ], A[ maxRow ][ k ] ] = [ A[ maxRow ][ k ], A[ i ][ k ] ];
+            [ A_aug[ i ][ k ], A_aug[ max_row ][ k ] ] = [ A_aug[ max_row ][ k ], A_aug[ i ][ k ] ];
         
         // Make all rows below this one 0 in current column
         for( k = i + 1; k < n; k++ )
         {
-            var c = -A[ k ][ i ] / A[ i ][ i ];
+            var c = -A_aug[ k ][ i ] / A_aug[ i ][ i ];
             for( var j = i; j < n + 1; j++ )
             {
                 if( i == j )
-                    A[ k ][ j ] = 0;
+                    A_aug[ k ][ j ] = 0;
                 else
-                    A[ k ][ j ] += c * A[ i ][ j ];
+                    A_aug[ k ][ j ] += c * A_aug[ i ][ j ];
             }
         }
     }
@@ -46,9 +54,9 @@ function solve( A )
     var x = new Array( n );
     for( var i = n - 1; i > -1; i-- )
     {
-        x[ i ] = A[ i ][ n ] / A[ i ][ i ];
+        x[ i ] = A_aug[ i ][ n ] / A_aug[ i ][ i ];
         for( var k = i - 1; k > -1; k-- )
-            A[ k ][ n ] -= A[ k ][ i ] * x[ i ];
+            A_aug[ k ][ n ] -= A_aug[ k ][ i ] * x[ i ];
     }
     return x;
 }
@@ -153,36 +161,24 @@ function TPS_generate( src, dst )
             L[ n + i ][ n + j ] = 0;
     
     // V Matrix
-    var V = createArray( n + 3, 2 );
+    var Vx = createArray( n + 3 );
+    var Vy = createArray( n + 3 );
+    
     for( var i = 0; i < n; i++ )
     {
-        V[ i ][ 0 ] = dst[ i ][ 0 ];
-        V[ i ][ 1 ] = dst[ i ][ 1 ];
+        Vx[ i ] = dst[ i ][ 0 ];
+        Vy[ i ] = dst[ i ][ 1 ];
     }
     
     for( var i = 0; i < 3; i++ )
     {
-        V[ i + n ][ 0 ] = 0;
-        V[ i + n ][ 1 ] = 0;
+        Vx[ i + n ] = 0;
+        Vy[ i + n ] = 0;
     }
     
     // Solve
-    var Lx = createArray( n + 3, n + 4 );
-    var Ly = createArray( n + 3, n + 4 );
-    
-    for( var i = 0; i < n + 3; i++ )
-    {
-        for( var j = 0; j < n + 3; j++ )
-        {
-            Lx[ i ][ j ] = L[ i ][ j ];
-            Ly[ i ][ j ] = L[ i ][ j ];
-        }
-        Lx[ i ][ n + 3 ] = V[ i ][ 0 ];
-        Ly[ i ][ n + 3 ] = V[ i ][ 1 ];
-    }
-    
-    Wax = solve( Lx );
-    Way = solve( Ly );
+    Wax = solve( L, Vx );
+    Way = solve( L, Vy );
     
     var W = createArray( n, 2 );
     for( var i = 0; i < n; i++ )
