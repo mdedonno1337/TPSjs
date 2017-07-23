@@ -249,11 +249,15 @@ function TPS_generate( src, dst )
     var WKW = dot( dot( transpose( W ), K ), W );
     var be = 0.5 * ( WKW[ 0 ][ 0 ] + WKW[ 1 ][ 1 ]  );
     
+    var surfaceratio = ( a[ 1 ][ 0 ] * a[ 2 ][ 1 ] ) - ( a[ 2 ][ 0 ] * a[ 1 ][ 1 ] );
+    var scale = Math.sqrt( Math.abs( surfaceratio ) );
+    
     // Return
     return {
         src: src,
         dst: dst,
         linear: a,
+        scale: scale,
         weights: W,
         be: be,
     };
