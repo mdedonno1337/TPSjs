@@ -64,7 +64,11 @@ function solve( A, b )
             
             // Swap maximum row with current row (column by column)
             for( var k = i; k < n + 1; k++ )
-                [ A_aug[ i ][ k ], A_aug[ max_row ][ k ] ] = [ A_aug[ max_row ][ k ], A_aug[ i ][ k ] ];
+            {
+                var tmp = A_aug[ i ][ k ];
+                A_aug[ i ][ k ] = A_aug[ max_row ][ k ];
+                A_aug[ max_row ][ k ] = tmp;
+            }
             
             // Make all rows below this one 0 in current column
             for( k = i + 1; k < n; k++ )

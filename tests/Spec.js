@@ -34,9 +34,14 @@ describe( "TPS Core", function()
     {
         for( var i = 0; i < src.length; i++ )
         {
-            [ x, y ]           = src[ i ];
-            [ exp_px, exp_py ] = dst[ i ];
-            [ px, py ]         = TPS_project( g, x, y );
+            var x = src[ i ][ 0 ];
+            var y = src[ i ][ 1 ];
+            
+            var exp_px = dst[ i ][ 0 ]
+            var exp_py = dst[ i ][ 1 ];
+            var p = TPS_project( g, x, y );
+            var px = p[ 0 ];
+            var py = p[ 1 ];
             
             expect( myround( px, 5 ) ).toEqual( myround( exp_px, 5 ) );
             expect( myround( py, 5 ) ).toEqual( myround( exp_py, 5 ) );
