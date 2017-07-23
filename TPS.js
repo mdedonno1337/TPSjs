@@ -1,4 +1,59 @@
 /*
+ * Solve a linear system of equations by Gaussian elimination.
+ * Based on:
+ *      https://martin-thoma.com/solving-linear-equations-with-gaussian-elimination/
+ */
+function solve( A )
+{
+    var n = A.length;
+    
+    for( var i = 0; i < n; i++ )
+    {
+        // Search for maximum in this column
+        var maxEl = 0
+        var maxRow = null;
+        
+        for( var k = i; k < n; k++ )
+        {
+            cmaxEl = Math.abs( A[ k ][ i ] );
+            
+            if( cmaxEl > maxEl )
+            {
+                maxEl = cmaxEl;
+                maxRow = k;
+            }
+        }
+        
+        // Swap maximum row with current row (column by column)
+        for( var k = i; k < n + 1; k++ )
+            [ A[ i ][ k ], A[ maxRow ][ k ] ] = [ A[ maxRow ][ k ], A[ i ][ k ] ];
+        
+        // Make all rows below this one 0 in current column
+        for( k = i + 1; k < n; k++ )
+        {
+            var c = -A[ k ][ i ] / A[ i ][ i ];
+            for( var j = i; j < n + 1; j++ )
+            {
+                if( i == j )
+                    A[ k ][ j ] = 0;
+                else
+                    A[ k ][ j ] += c * A[ i ][ j ];
+            }
+        }
+    }
+    
+    // Solve equation Ax=b 
+    var x = new Array( n );
+    for( var i = n - 1; i > -1; i-- )
+    {
+        x[ i ] = A[ i ][ n ] / A[ i ][ i ];
+        for( var k = i - 1; k > -1; k-- )
+            A[ k ][ n ] -= A[ k ][ i ] * x[ i ];
+    }
+    return x;
+}
+
+/*
  * Matrix allocation. This function allow to create a multi-dimentional Array().
  */
 function createArray( length )
@@ -112,13 +167,36 @@ function TPS_generate( src, dst )
     }
     
     // Solve
-    var L = new Matrix( L );
-    var V = new Matrix( V );
+    var Lx = createArray( n + 3, n + 4 );
+    var Ly = createArray( n + 3, n + 4 );
     
-    var Wa = L.solve( V ).toArray();
+    for( var i = 0; i < n + 3; i++ )
+    {
+        for( var j = 0; j < n + 3; j++ )
+        {
+            Lx[ i ][ j ] = L[ i ][ j ];
+            Ly[ i ][ j ] = L[ i ][ j ];
+        }
+        Lx[ i ][ n + 3 ] = V[ i ][ 0 ];
+        Ly[ i ][ n + 3 ] = V[ i ][ 1 ];
+    }
     
-    var W = Wa.slice( 0, n );
-    var a = Wa.slice( n, n + 3 );
+    Wax = solve( Lx );
+    Way = solve( Ly );
+    
+    var W = createArray( n, 2 );
+    for( var i = 0; i < n; i++ )
+    {
+        W[ i ][ 0 ] = Wax[ i ];
+        W[ i ][ 1 ] = Way[ i ];
+    }
+    
+    var a = createArray( 3, 2 );
+    for( var i = 0; i < 3; i++ )
+    {
+        a[ i ][ 0 ] = Wax[ i + n ];
+        a[ i ][ 1 ] = Way[ i + n ];
+    }
     
     // Return
     return {
