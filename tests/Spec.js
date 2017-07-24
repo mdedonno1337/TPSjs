@@ -18,6 +18,7 @@ describe( "TPS Core", function()
         ],
         
         scale: 0.8931102258056604,
+        shearing: 249.53683693462318,
         mirror: false,
 
         weights: [ [ -0.03803013535431951,   0.04244692805941587  ],

@@ -157,6 +157,33 @@ function unit_vector( vector )
 }
 
 /*
+ * angle_between
+ */
+function angle_between( v1, v2, deg )
+{
+    var v1_u = unit_vector( v1 );
+    var v2_u = unit_vector( v2 );
+    
+    var d = 0;
+    for( var i = 0; i < v1_u.length; i++ )
+        d += v1_u[ i ] * v2_u[ i ];
+    
+    var angle = Math.acos( d );
+    
+    if( v1_u[ 1 ] < 0 )
+        angle = 2 * Math.PI - angle;
+    
+    angle = angle % ( 2 * Math.PI );
+    
+    if( deg !== "undefined" && !deg )
+        return angle;
+    else
+        return angle / Math.PI * 180; 
+    
+    return angle;
+}
+
+/*
  * Functions defined in the publication of Bookstein (1989). The original
  * function U is not realy used here because of performance issues. Since the U
  * function is used for the K matrix, the sqrt() present in the distance
@@ -254,6 +281,8 @@ function TPS_generate( src, dst )
     
     var mirror = surfaceratio < 0 ? true : false;
     
+    var shearing = angle_between( [ a[ 1 ][ 0 ], a[ 1 ][ 1 ] ], [ a[ 2 ][ 0 ], a[ 2 ][ 1 ] ], true );
+    
     // Return
     return {
         src: src,
@@ -261,6 +290,7 @@ function TPS_generate( src, dst )
         linear: a,
         scale: scale,
         mirror: mirror,
+        shearing: shearing,
         weights: W,
         be: be,
     };
