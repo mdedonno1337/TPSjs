@@ -305,7 +305,13 @@ function TPS_project( g, x, y )
 {
     // vars
     var n = g[ 'src' ].length
-
+    
+    if( typeof( y ) === "undefined" )
+    {
+        var y = x[ 1 ];
+        var x = x[ 0 ];
+    }
+    
     var xy = new Array();
     xy[ 0 ] = 1;
     xy[ 1 ] = x;

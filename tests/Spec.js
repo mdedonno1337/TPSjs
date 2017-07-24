@@ -36,16 +36,23 @@ describe( "TPS Core", function()
         expect( TPS_generate( src, dst ) ).toEqual( g );
     } );
     
-    it( "TPS_project", function()
+    it( "TPS_project: Array or separate x, y call", function()
+    {
+        var arr = TPS_project( g, src[ 0 ] );
+        var sep = TPS_project( g, src[ 0 ][ 0 ], src[ 0 ][ 1 ] );
+        
+        expect( arr ).toEqual( sep );
+        
+    });
+    
+    it( "TPS_project: src ~> dst", function()
     {
         for( var i = 0; i < src.length; i++ )
         {
-            var x = src[ i ][ 0 ];
-            var y = src[ i ][ 1 ];
-            
             var exp_px = dst[ i ][ 0 ]
             var exp_py = dst[ i ][ 1 ];
-            var p = TPS_project( g, x, y );
+            
+            var p = TPS_project( g, src[ i ] );
             var px = p[ 0 ];
             var py = p[ 1 ];
             
